@@ -51,11 +51,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             @Override
             public boolean onLongClick(View v) {
                 longClickAction("numberMom");
-                //SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-                //ph_no = sharedPreferences.getString("numberMom", "");
-                //Log.i("info", "Long");
-                //getLocation();
-                //Toast.makeText(getApplicationContext(), "Message Will Be Sent Shortly", Toast.LENGTH_LONG).show();
                 return true;
             }
         });
