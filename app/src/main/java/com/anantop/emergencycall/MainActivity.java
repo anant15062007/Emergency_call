@@ -60,10 +60,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             @Override
             public boolean onLongClick(View v) {
                 longClickAction("numberDad");
-                //SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-                //ph_no = sharedPreferences.getString("numberDad", "");
-                //Log.i("info", "Long");
-                //getLocation();
                 return true;
             }
         });
@@ -72,10 +68,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             @Override
             public boolean onLongClick(View v) {
                 longClickAction("numberPolice");
-                //SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-                //String ph_no = sharedPreferences.getString("numberPolice", "");
-                //Log.i("info", "Long");
-                //getLocation();
                 return true;
             }
         });
@@ -225,8 +217,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         try {
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
-            //locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DIST, this);
         }
         catch(SecurityException e) {
             e.printStackTrace();
