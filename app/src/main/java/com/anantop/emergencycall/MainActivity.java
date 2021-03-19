@@ -12,8 +12,10 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.telephony.SmsManager;
 import android.util.Log;
@@ -229,14 +231,47 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void onLocationChanged(Location location) {
 
         Log.i("info", location.getLatitude() + "");
+        //new MyTask().execute();
 
+        Thread thread = new Thread(){
+            public void run(){
+                Looper.prepare();//Call looper.prepare()
+
+                Handler mHandler = new Handler() {
+                    public void handleMessage(Message msg) {
+                        Toast.makeText(getApplicationContext(), "Finco is Daddy", Toast.LENGTH_LONG);
+                        Log.i("info", "hi");
+                    }
+                };
+
+                Looper.loop();
+            }
+        };
+        thread.start();
+/*
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                getAddress_andSendSms(location);
+            }
+        });
+        */
+
+        /*
+        runOnUiThread(new Runnable() {
+            public void run() {
+                getAddress_andSendSms(location);
+            }
+        });
+*/
+        /*
         new Thread(new Runnable(){
             @Override
             public void run() {
                 getAddress_andSendSms(location);
             }
         }).start();
-
+*/
     }
 
     @Override
@@ -296,11 +331,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         thread.start();
     }
 
-    public void getAddress_andSendSms(Location location)
+    public void getAddress_andSendSms()
     {
+        /*Location location = null;
+        location.setLatitude(27);
+        location.setLongitude(-122);
+        */
         try
         {
-            URL url = new URL("https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=" + location.getLatitude() + "&longitude=" + location.getLongitude() + "&localityLanguage=en");
+            //URL url = new URL("https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=" + location.getLatitude() + "&longitude=" + location.getLongitude() + "&localityLanguage=en");
+            URL url = new URL("https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=" + "23" + "&longitude=" + "-123" + "&localityLanguage=en");
             URLConnection urlcon=url.openConnection();
             System.out.println("------------------------------------");
 
@@ -323,7 +363,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
             SmsManager sms = SmsManager.getDefault();
-            sms.sendTextMessage(ph_no, null, "Need Help. Current Location: " + location.getLatitude() + ", " + location.getLongitude() + " City Is:" + city, pi, null);
+            //sms.sendTextMessage(ph_no, null, "Need Help. Current Location: " + location.getLatitude() + ", " + location.getLongitude() + " City Is:" + city, pi, null);
+            sms.sendTextMessage(ph_no, null, "Need Help. Current Location: "  + ", "  + " City Is:" + city, pi, null);
             Toast.makeText(getApplicationContext(), "Message Sent successfully!",
                     Toast.LENGTH_LONG).show();
 
@@ -349,4 +390,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             Log.e("location Address=", locationAddress);
         }
     }
+
+    private class MyTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            //String url = params[0];
+            getAddress_andSendSms();
+            return "abc";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            // do something with result
+        }
+    }
+
 }
