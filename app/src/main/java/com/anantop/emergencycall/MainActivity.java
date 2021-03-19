@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     Button button3 = null;
     private LocationManager locationManager;
     String ph_no;
-    //private Handler GeocoderHandler;
+    ////private Handler GeocoderHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
