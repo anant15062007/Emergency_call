@@ -1,11 +1,15 @@
 package com.anantop.emergencycall;
 
 import android.Manifest.permission;
+import android.app.Dialog;
 import android.app.PendingIntent;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -13,14 +17,17 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -29,6 +36,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.BreakIterator;
 import java.util.List;
@@ -39,12 +47,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private GoogleMap mMap;
     private LocationManager locationManager;
     private LocationListener locationListener;
-
     private final long MIN_TIME = 1000;
     private final long MIN_DIST = 5;
-
     private LatLng latLng;
     String ph_no;
+    Uri imageUriMom;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,8 +90,20 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         // set the text1 value from database
         SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
         String phoneMom = sharedPreferences.getString("numberMom", "");
+        String imageMom = sharedPreferences.getString("imageMom", "");
+        imageUriMom = Uri.parse(imageMom);
         EditText number1 = (EditText) findViewById(R.id.editTextTextPersonName2);
         number1.setText(phoneMom);
+        Bitmap bitmap;
+        ImageView imageview = findViewById(R.id.imageView3);
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriMom);
+            imageview.setImageBitmap(bitmap);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         // set the text2 value from database
         sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
@@ -106,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("numberMom", number2);
+        editor.putString("imageMom",imageUriMom.toString());
         editor.commit();
 
         number1 = (EditText) findViewById(R.id.editTextTextPersonName);
@@ -127,37 +147,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void mainPage(View view) {
 
         setContentView(R.layout.activity_main);
+
         button3 = (Button) findViewById(R.id.back);
         button3.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-                String number = sharedPreferences.getString("numberMom", "111");
-                Log.i("info", "Long");
-                //below code is for sending sms
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-                SmsManager sms = SmsManager.getDefault();
-                sms.sendTextMessage(number, null, "Need Help!", pi, null);
-                Toast.makeText(getApplicationContext(), "Message Sent successfully!",
-                        Toast.LENGTH_LONG).show();
+                longClickAction("numberMom");
                 return true;
             }
         });
+
         button3 = (Button) findViewById(R.id.buttonDad);
         button3.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-                String number2 = sharedPreferences.getString("numberDad", "222");
-                Log.i("info", "Long");
-                //below code is for sending sms
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-                SmsManager sms = SmsManager.getDefault();
-                sms.sendTextMessage(number2, null, "Need Help!", pi, null);
-                Toast.makeText(getApplicationContext(), "Message Sent successfully!",
-                        Toast.LENGTH_LONG).show();
+                longClickAction("numberDad");
                 return true;
             }
         });
@@ -165,20 +169,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         button3.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-                String number3 = sharedPreferences.getString("numberPolice", "");
-                Log.i("info", "Long");
-                //below code is for sending sms
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-                SmsManager sms = SmsManager.getDefault();
-                sms.sendTextMessage(number3, null, "Need Help!", pi, null);
-                Toast.makeText(getApplicationContext(), "Message Sent successfully!",
-                        Toast.LENGTH_LONG).show();
+                longClickAction("numberPolice");
                 return true;
             }
         });
-
     }
 
     public void mom(View view) {
@@ -218,11 +212,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     void getLocation() {
+        Log.i("info", "inside getLocation");
         try {
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
-        }
-        catch(SecurityException e) {
+            if (locationManager != null) {
+                Log.i("info", "locationManager is not null");
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
+            } else {
+                Log.i("info", "locationManager is null");
+            }
+        } catch (SecurityException e) {
             e.printStackTrace();
         }
     }
@@ -230,7 +229,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     @Override
     public void onLocationChanged(Location location) {
 
-        Log.i("info", location.getLatitude() + "");
+        Log.i("info", "Inside onLocationChanged");
+        Log.i("Latitude", location.getLatitude() + "");
+        Log.i("longitude", location.getLongitude() + "");
 
         //below code is for sending sms
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -253,13 +254,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         Toast.makeText(MainActivity.this, "Please Enable GPS and Internet", Toast.LENGTH_SHORT).show();
     }
 
-    private void longClickAction(String person){
+    private void longClickAction(String person) {
         SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
         ph_no = sharedPreferences.getString(person, "");
-        Log.i("info", "Long");
+        Log.i("info", "inside longClickAction");
         getLocation();
         Toast.makeText(getApplicationContext(), "Message Will Be Sent Shortly",
-        Toast.LENGTH_LONG).show();
+                Toast.LENGTH_LONG).show();
     }
 
     public String test(Location location) throws IOException {
@@ -267,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         List<Address> addresses;
         geocoder = new Geocoder(this, Locale.getDefault());
 
-        addresses = geocoder.getFromLocation(location.getLatitude(),location.getLongitude() , 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+        addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
 
         String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
         String city = addresses.get(0).getLocality();
@@ -277,5 +278,76 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         String knownName = addresses.get(0).getFeatureName();
         Log.i("address", address);
         return address;
+    }
+
+    public void imageMom(View view) {
+        String color_array[]=new String[2];
+        color_array[0]="Take Photo";
+        color_array[1]="Choose Photo From Folder";
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Choose Image").setItems(color_array, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.i("info","item clicked number="+which);
+
+                        switch (which){
+                            case 0:
+                                Log.i("tag","I am taking photo");
+                                Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+                                ContentValues values = new ContentValues();
+                                values.put(MediaStore.Images.Media.TITLE, "MyPicture");
+                                values.put(MediaStore.Images.Media.DESCRIPTION, "Photo taken on " + System.currentTimeMillis());
+                                imageUriMom = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                                takePicture.putExtra(MediaStore.EXTRA_OUTPUT, imageUriMom);
+
+
+                                startActivityForResult(takePicture, 0);
+                                break;
+                            case 1:
+                                Log.i("tag","I am choosing photo");
+                                Intent pickPhoto = new Intent(Intent.ACTION_PICK,
+                                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                startActivityForResult(pickPhoto , 1);//one can be replaced with any action code
+                                break;
+                        }
+                    }
+                });
+        builder.show();
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
+        ImageView imageview = findViewById(R.id.imageView3);
+        switch(requestCode) {
+            case 0:
+                break;
+            case 1:
+                if(resultCode == RESULT_OK){
+                    imageUriMom = imageReturnedIntent.getData();
+                    Log.i("info", String.valueOf(imageUriMom));
+
+                }
+                break;
+        }
+        //imageview.setImageURI(imageUriMom);
+        Bitmap bitmap;
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriMom);
+            imageview.setImageBitmap(bitmap);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public static  Bitmap cropAndScale (Bitmap source, int scale){
+        int factor = source.getHeight() <= source.getWidth() ? source.getHeight(): source.getWidth();
+        int longer = source.getHeight() >= source.getWidth() ? source.getHeight(): source.getWidth();
+        int x = source.getHeight() >= source.getWidth() ?0:(longer-factor)/2;
+        int y = source.getHeight() <= source.getWidth() ?0:(longer-factor)/2;
+        source = Bitmap.createBitmap(source, x, y, factor, factor);
+        source = Bitmap.createScaledBitmap(source, scale, scale, false);
+        return source;
     }
 }
