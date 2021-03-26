@@ -89,7 +89,7 @@
         android:layout_marginEnd="4dp"
         android:layout_marginRight="4dp"
         android:background="#DC3535"
-        android:onClick="imageDad"
+        android:onClick="imageMom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:drawable/list_selector_background" />
@@ -102,7 +102,7 @@
         android:layout_marginEnd="4dp"
         android:layout_marginRight="4dp"
         android:background="#DC3535"
-        android:onClick="imagePolice"
+        android:onClick="imageMom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:drawable/list_selector_background" />

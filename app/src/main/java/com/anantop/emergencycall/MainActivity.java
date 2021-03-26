@@ -36,6 +36,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.BreakIterator;
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     Uri imageUriMom;
     Uri imageUriDad;
     Uri imageUriPolice;
+    String imageButtonClicked=null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
         editor = sharedPreferences.edit();
         editor.putString("numberDad", number2);
+        editor.putString("imageDad",imageUriDad.toString());
         editor.commit();
 
         number1 = (EditText) findViewById(R.id.editTextTextPersonName3);
@@ -164,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
         editor = sharedPreferences.edit();
         editor.putString("numberPolice", number2);
+        editor.putString("imagePolice",imageUriPolice.toString());
         editor.commit();
 
     }
@@ -242,6 +246,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             if (locationManager != null) {
                 Log.i("info", "locationManager is not null");
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 5, this);
             } else {
                 Log.i("info", "locationManager is null");
             }
@@ -263,12 +268,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         SmsManager sms = SmsManager.getDefault();
         String address = null;
         try {
-            address = test(location);
+            address = getLocation(location);
             Log.i("info", address);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        sms.sendTextMessage(ph_no, null, "Need Help. Current Location: " + location.getLatitude() + ", " + location.getLongitude() + "Address=" + address, pi, null);
+        sms.sendTextMessage(ph_no, null,
+                "Need Help. Current Location: " +
+                        location.getLatitude() + ", " + location.getLongitude() + "Address=" + address, pi, null);
         Toast.makeText(getApplicationContext(), "Message Sent successfully!",
                 Toast.LENGTH_LONG).show();
     }
@@ -282,15 +289,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
         ph_no = sharedPreferences.getString(person, "");
         Log.i("info", "inside longClickAction");
+        Log.i("info", "phone number"+ph_no);
         getLocation();
         Toast.makeText(getApplicationContext(), "Message Will Be Sent Shortly",
                 Toast.LENGTH_LONG).show();
     }
 
-    public String test(Location location) throws IOException {
+    public String getLocation(Location location) throws IOException {
         Geocoder geocoder;
         List<Address> addresses;
         geocoder = new Geocoder(this, Locale.getDefault());
+
+        Log.i("info","inside getLocation");
 
         addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
 
@@ -304,86 +314,80 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         return address;
     }
 
-    public void imageMom(View view) {
-        String color_array[]=new String[2];
-        color_array[0]="Take Photo";
-        color_array[1]="Choose Photo From Folder";
-
-        Log.i("click", getId(view));
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose Image").setItems(color_array, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Log.i("info","item clicked number="+which);
-
-                        switch (which){
-                            case 0:
-                                Log.i("tag","I am taking photo");
-                                Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                ContentValues values = new ContentValues();
-                                values.put(MediaStore.Images.Media.TITLE, "MyPicture");
-                                values.put(MediaStore.Images.Media.DESCRIPTION, "Photo taken on " + System.currentTimeMillis());
-                                imageUriMom = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-                                takePicture.putExtra(MediaStore.EXTRA_OUTPUT, imageUriMom);
-                                startActivityForResult(takePicture, 0);
-                                break;
-                            case 1:
-                                Log.i("tag","I am choosing photo");
-                                Intent pickPhoto = new Intent(Intent.ACTION_PICK,
-                                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                                startActivityForResult(pickPhoto , 1);//one can be replaced with any action code
-                                break;
-                        }
-                    }
-                });
-        builder.show();
-    }
-
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+        Log.i("info","inside on activity result");
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
+        Bitmap bitmap=null;
+        Bundle extras;
+        Bitmap mImageBitmap;
         switch(requestCode) {
             case 0:
+                if (resultCode == RESULT_OK) {
+                    extras = imageReturnedIntent.getExtras();
+                    //assign value in imageUriMom
+                    mImageBitmap = (Bitmap) extras.get("data");
+                    ImageView imageviewMom = findViewById(R.id.imageView4);
+                    imageviewMom.setImageBitmap(mImageBitmap);
+                    return;
+                }
                 break;
             case 1:
                 if(resultCode == RESULT_OK){
                     imageUriMom = imageReturnedIntent.getData();
-                    Log.i("info", String.valueOf(imageUriMom));
-
+                    Log.i("image_uri", String.valueOf(imageUriMom));
+                    try {
+                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriMom);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    ImageView imageviewMom = findViewById(R.id.imageView4);
+                    imageviewMom.setImageBitmap(bitmap);
                 }
                 break;
             case 2:
+                if (resultCode == RESULT_OK) {
+                    extras = imageReturnedIntent.getExtras();
+                    mImageBitmap = (Bitmap) extras.get("data");
+                    ImageView imageviewDad = findViewById(R.id.imageView3);
+                    imageviewDad.setImageBitmap(mImageBitmap);
+                    return;
+                }
                 break;
             case 3:
                 if(resultCode == RESULT_OK){
                     imageUriDad = imageReturnedIntent.getData();
                     Log.i("info", String.valueOf(imageUriDad));
-
+                    try {
+                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriDad);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    ImageView imageviewDad = findViewById(R.id.imageView3);
+                    imageviewDad.setImageBitmap(bitmap);
                 }
                 break;
             case 4:
+                if (resultCode == RESULT_OK) {
+                    extras = imageReturnedIntent.getExtras();
+                    mImageBitmap = (Bitmap) extras.get("data");
+                    ImageView imageviewPolice = findViewById(R.id.imageView5);
+                    imageviewPolice.setImageBitmap(mImageBitmap);
+                    return;
+                }
                 break;
             case 5:
                 if(resultCode == RESULT_OK){
                     imageUriPolice = imageReturnedIntent.getData();
                     Log.i("info", String.valueOf(imageUriPolice));
-
+                    try {
+                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriPolice);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    ImageView imageviewPolice = findViewById(R.id.imageView5);
+                    imageviewPolice.setImageBitmap(bitmap);
                 }
                 break;
-        }
-        Bitmap bitmap;
-        try {
-            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriMom);
-            ImageView imageviewMom = findViewById(R.id.imageView4);
-            imageviewMom.setImageBitmap(bitmap);
-            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriDad);
-            ImageView imageviewDad = findViewById(R.id.imageView3);
-            imageviewDad.setImageBitmap(bitmap);
-            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriPolice);
-            ImageView imageviewPolice = findViewById(R.id.imageView5);
-            imageviewPolice.setImageBitmap(bitmap);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -397,74 +401,95 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         return source;
     }
 
-    public void imageDad(View view) {
-        String color_array[]=new String[2];
-        color_array[0]="Take Photo";
-        color_array[1]="Choose Photo From Folder";
-        Log.i("click", getId(view));
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose Image").setItems(color_array, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                Log.i("info","item clicked number="+which);
-
-                switch (which){
-                    case 0:
-                        Log.i("tag","I am taking photo");
-                        Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        ContentValues values = new ContentValues();
-                        values.put(MediaStore.Images.Media.TITLE, "MyPicture");
-                        values.put(MediaStore.Images.Media.DESCRIPTION, "Photo taken on " + System.currentTimeMillis());
-                        imageUriDad = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-                        takePicture.putExtra(MediaStore.EXTRA_OUTPUT, imageUriDad);
-                        startActivityForResult(takePicture, 2);
-                        break;
-                    case 1:
-                        Log.i("tag","I am choosing photo");
-                        Intent pickPhoto = new Intent(Intent.ACTION_PICK,
-                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                        startActivityForResult(pickPhoto , 3);//one can be replaced with any action code
-                        break;
-                }
-            }
-        });
-        builder.show();
-    }
-
-    public void imagePolice(View view) {
-        String color_array[]=new String[2];
-        color_array[0]="Take Photo";
-        color_array[1]="Choose Photo From Folder";
-        Log.i("click", getId(view));
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose Image").setItems(color_array, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                Log.i("info","item clicked number="+which);
-
-                switch (which){
-                    case 0:
-                        Log.i("tag","I am taking photo");
-                        Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        ContentValues values = new ContentValues();
-                        values.put(MediaStore.Images.Media.TITLE, "MyPicture");
-                        values.put(MediaStore.Images.Media.DESCRIPTION, "Photo taken on " + System.currentTimeMillis());
-                        imageUriPolice = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-                        takePicture.putExtra(MediaStore.EXTRA_OUTPUT, imageUriPolice);
-                        startActivityForResult(takePicture, 4);
-                        break;
-                    case 1:
-                        Log.i("tag","I am choosing photo");
-                        Intent pickPhoto = new Intent(Intent.ACTION_PICK,
-                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                        startActivityForResult(pickPhoto , 5);//one can be replaced with any action code
-                        break;
-                }
-            }
-        });
-        builder.show();
-    }
-
     public static String getId(View view) {
         if (view.getId() == View.NO_ID) return "no-id";
         else return view.getResources().getResourceName(view.getId());
+    }
+
+    public void imageMom(View view) {
+        String color_array[]=new String[2];
+        color_array[0]="Take Photo";
+        color_array[1]="Choose Photo From Folder";
+
+        Log.i("click", "xxxxx"+getId(view));
+        if(getId(view).equals("com.anantop.emergencycall:id/imageView4")){
+            Log.i("click", "yyyyyyy"+getId(view));
+            imageButtonClicked="mom";
+        } else if(getId(view).equals("com.anantop.emergencycall:id/imageView3")){
+            imageButtonClicked="dad";
+        }
+        else if (getId(view).equals("com.anantop.emergencycall:id/imageView5")) {
+            imageButtonClicked="police";
+        }
+        else{
+            Log.i("click", "unknown button clicked");
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Choose Image").setItems(color_array, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Log.i("info","item clicked number="+which);
+
+                switch (which){
+                    case 0:
+                        Log.i("tag","I am taking photo");
+                        Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                        ContentValues values = new ContentValues();
+                        values.put(MediaStore.Images.Media.TITLE, "MyPicture");
+                        values.put(MediaStore.Images.Media.DESCRIPTION, "Photo taken on " + System.currentTimeMillis());
+                        if (imageButtonClicked=="mom"){
+                            //imageUriMom = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                            //Log.i("imageUriFrmTakePicture",imageUriMom.toString());
+                            //takePicture.putExtra(MediaStore.EXTRA_OUTPUT, imageUriMom);
+
+                            startActivityForResult(takePicture, 0);
+                            try {
+                                Thread.sleep(5000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        else if (imageButtonClicked=="dad"){
+                            //imageUriDad = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                            //takePicture.putExtra(MediaStore.EXTRA_OUTPUT, imageUriDad);
+                            startActivityForResult(takePicture, 2);
+                            try {
+                                Thread.sleep(5000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        else if (imageButtonClicked=="police"){
+                            //imageUriPolice = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                            //takePicture.putExtra(MediaStore.EXTRA_OUTPUT, imageUriPolice);
+                            startActivityForResult(takePicture, 4);
+                            try {
+                                Thread.sleep(5000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        break;
+                    case 1:
+                        Log.i("tag","I am choosing photo");
+                        Intent pickPhoto = new Intent(Intent.ACTION_PICK,
+                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        if (imageButtonClicked.equals("mom")) {
+                            Log.i("inside if mom","i am inside");
+                            startActivityForResult(pickPhoto, 1);//one can be replaced with any action code
+                        }
+                        else if (imageButtonClicked.equals("dad")){
+                            Log.i("inside if dad","i am inside");
+                            startActivityForResult(pickPhoto, 3);
+                        }
+                        else if (imageButtonClicked.equals("police")){
+                            Log.i("inside if police","i am inside");
+                            startActivityForResult(pickPhoto, 5);
+                        }
+                        break;
+                }
+            }
+        });
+        builder.show();
     }
 }
