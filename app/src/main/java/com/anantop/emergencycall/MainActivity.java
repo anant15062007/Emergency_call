@@ -2,6 +2,7 @@ package com.anantop.emergencycall;
 
 import android.Manifest;
 import android.Manifest.permission;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.ContentValues;
@@ -36,6 +37,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -47,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private static final int MY_CALL_PHONE_PERMISSION_CODE = 50;
     private static final int CALL_PHONE_REQUEST = 51;
     private static final int MY_SMS_LOCATION_PERMISSION_CODE = 60;
+    private static final int MY_CAMERA_PERMISSION_CODE = 80;
     Button button3 = null;
     private GoogleMap mMap;
     private LocationManager locationManager;
@@ -68,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         button3 = (Button) findViewById(R.id.back);
         button3.setOnLongClickListener(new View.OnLongClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public boolean onLongClick(View v) {
                 longClickAction("numberMom");
@@ -76,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         });
         button3 = (Button) findViewById(R.id.buttonDad);
         button3.setOnLongClickListener(new View.OnLongClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public boolean onLongClick(View v) {
                 longClickAction("numberDad");
@@ -84,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         });
         button3 = (Button) findViewById(R.id.buttonPolice);
         button3.setOnLongClickListener(new View.OnLongClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public boolean onLongClick(View v) {
                 longClickAction("numberPolice");
@@ -104,45 +111,52 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         EditText number3 = (EditText) findViewById(R.id.editTextTextPersonName3);
         number3.setText(sharedPreferences.getString("numberPolice", ""));
 
+        String imageMom = sharedPreferences.getString("imageMom", "");
+        String imageDad = sharedPreferences.getString("imageDad", "");
+        String imagePolice = sharedPreferences.getString("imagePolice", "");
+
         try {
-            imageUriMom = Uri.parse(sharedPreferences.getString("imageMom", ""));
-            imageUriDad = Uri.parse(sharedPreferences.getString("imageDad", ""));
-            imageUriPolice = Uri.parse(sharedPreferences.getString("imagePolice", ""));
+            imageUriMom = Uri.parse(imageMom);
+            imageUriDad = Uri.parse(imageDad);
+            imageUriPolice = Uri.parse(imagePolice);
         }
         catch (Exception exception){
             Log.i("infoooo",exception.toString());
         }
 
         Bitmap bitmap;
-
-        try {
-            ImageView imageview = findViewById(R.id.imageView4);
-            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriMom);
-            imageview.setImageBitmap(bitmap);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(imageMom != "") {
+            try {
+                ImageView imageview = findViewById(R.id.imageView4);
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriMom);
+                imageview.setImageBitmap(bitmap);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
-        try {
-            ImageView imageview1 = findViewById(R.id.imageView3);
-            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriDad);
-            imageview1.setImageBitmap(bitmap);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(imageDad != "") {
+            try {
+                ImageView imageview1 = findViewById(R.id.imageView3);
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriDad);
+                imageview1.setImageBitmap(bitmap);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
-        try {
-            ImageView imageview2 = findViewById(R.id.imageView5);
-            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriPolice);
-            imageview2.setImageBitmap(bitmap);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(imagePolice != "") {
+            try {
+                ImageView imageview2 = findViewById(R.id.imageView5);
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriPolice);
+                imageview2.setImageBitmap(bitmap);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -175,6 +189,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         Button button1 = (Button) findViewById(R.id.back);
         button1.setOnLongClickListener(new View.OnLongClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public boolean onLongClick(View v) {
                 longClickAction("numberMom");
@@ -184,6 +199,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         Button button2 = (Button) findViewById(R.id.buttonDad);
         button2.setOnLongClickListener(new View.OnLongClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public boolean onLongClick(View v) {
                 longClickAction("numberDad");
@@ -193,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         Button button3 = (Button) findViewById(R.id.buttonPolice);
         button3.setOnLongClickListener(new View.OnLongClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public boolean onLongClick(View v) {
                 longClickAction("numberPolice");
@@ -346,83 +363,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         return address;
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
-        Log.i("info","inside on activity result");
-        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-        Bitmap bitmap=null;
-        Bundle extras;
-        Bitmap mImageBitmap;
-        switch(requestCode) {
-            case 0:
-                if (resultCode == RESULT_OK) {
-                    extras = imageReturnedIntent.getExtras();
-                    //assign value in imageUriMom
-                    mImageBitmap = (Bitmap) extras.get("data");
-                    ImageView imageviewMom = findViewById(R.id.imageView4);
-                    imageviewMom.setImageBitmap(mImageBitmap);
-                    return;
-                }
-                break;
-            case 1:
-                if(resultCode == RESULT_OK){
-                    imageUriMom = imageReturnedIntent.getData();
-                    Log.i("image_uri", String.valueOf(imageUriMom));
-                    try {
-                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriMom);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    ImageView imageviewMom = findViewById(R.id.imageView4);
-                    imageviewMom.setImageBitmap(bitmap);
-                }
-                break;
-            case 2:
-                if (resultCode == RESULT_OK) {
-                    extras = imageReturnedIntent.getExtras();
-                    mImageBitmap = (Bitmap) extras.get("data");
-                    ImageView imageviewDad = findViewById(R.id.imageView3);
-                    imageviewDad.setImageBitmap(mImageBitmap);
-                    return;
-                }
-                break;
-            case 3:
-                if(resultCode == RESULT_OK){
-                    imageUriDad = imageReturnedIntent.getData();
-                    Log.i("info", String.valueOf(imageUriDad));
-                    try {
-                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriDad);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    ImageView imageviewDad = findViewById(R.id.imageView3);
-                    imageviewDad.setImageBitmap(bitmap);
-                }
-                break;
-            case 4:
-                if (resultCode == RESULT_OK) {
-                    extras = imageReturnedIntent.getExtras();
-                    mImageBitmap = (Bitmap) extras.get("data");
-                    ImageView imageviewPolice = findViewById(R.id.imageView5);
-                    imageviewPolice.setImageBitmap(mImageBitmap);
-                    return;
-                }
-                break;
-            case 5:
-                if(resultCode == RESULT_OK){
-                    imageUriPolice = imageReturnedIntent.getData();
-                    Log.i("info", String.valueOf(imageUriPolice));
-                    try {
-                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriPolice);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    ImageView imageviewPolice = findViewById(R.id.imageView5);
-                    imageviewPolice.setImageBitmap(bitmap);
-                }
-                break;
-        }
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
         //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -454,6 +394,29 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 Toast.makeText(this, "SMS Or Location Permission Denied", Toast.LENGTH_LONG).show();
             }
         }
+        if (requestCode == MY_CAMERA_PERMISSION_CODE)
+        {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                Toast.makeText(this, "Camera Permission Granted", Toast.LENGTH_LONG).show();
+                Log.i("tag", "I am taking photo");
+                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                if (imageButtonClicked == "mom") {
+                    startActivityForResult(cameraIntent, 70);
+                } else if (imageButtonClicked == "dad") {
+                    startActivityForResult(cameraIntent, 72);
+                } else if (imageButtonClicked == "police") {
+                    startActivityForResult(cameraIntent, 74);
+                }
+            }
+            else
+            {
+                Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_LONG).show();
+            }
+        }
+
+
+
     }
 
     public static  Bitmap cropAndScale (Bitmap source, int scale){
@@ -492,60 +455,126 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Choose Image").setItems(options_array, new DialogInterface.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             public void onClick(DialogInterface dialog, int which) {
                 Log.i("info","item clicked number="+which);
                 switch (which){
                     case 0:
-                        Log.i("tag","I am taking photo");
-                        Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                        ContentValues values = new ContentValues();
-                        values.put(MediaStore.Images.Media.TITLE, "MyPicture");
-                        values.put(MediaStore.Images.Media.DESCRIPTION, "Photo taken on " + System.currentTimeMillis());
-                        if (imageButtonClicked=="mom"){
-                            startActivityForResult(takePicture, 0);
-                            try {
-                                Thread.sleep(5000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
+                        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+                        {
+                            requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
                         }
-                        else if (imageButtonClicked=="dad"){
-                            startActivityForResult(takePicture, 2);
-                            try {
-                                Thread.sleep(5000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        else if (imageButtonClicked=="police"){
-                            startActivityForResult(takePicture, 4);
-                            try {
-                                Thread.sleep(5000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                        else {
+                            Log.i("tag", "I am taking photo");
+                            Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                            if (imageButtonClicked == "mom") {
+                                startActivityForResult(cameraIntent, 70);
+                            } else if (imageButtonClicked == "dad") {
+                                startActivityForResult(cameraIntent, 72);
+                            } else if (imageButtonClicked == "police") {
+                                startActivityForResult(cameraIntent, 74);
                             }
                         }
                         break;
                     case 1:
                         Log.i("tag","I am choosing photo");
-                        Intent pickPhoto = new Intent(Intent.ACTION_PICK,
-                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                         if (imageButtonClicked.equals("mom")) {
                             Log.i("inside if mom","i am inside");
-                            startActivityForResult(pickPhoto, 1);//one can be replaced with any action code
+                            startActivityForResult(pickPhoto, 71);
                         }
                         else if (imageButtonClicked.equals("dad")){
                             Log.i("inside if dad","i am inside");
-                            startActivityForResult(pickPhoto, 3);
+                            startActivityForResult(pickPhoto, 73);
                         }
                         else if (imageButtonClicked.equals("police")){
                             Log.i("inside if police","i am inside");
-                            startActivityForResult(pickPhoto, 5);
+                            startActivityForResult(pickPhoto, 75);
                         }
                         break;
                 }
             }
         });
         builder.show();
+    }
+    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+        Log.i("info","inside on activity result");
+        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
+
+
+        Bitmap bitmap=null;
+        Bundle extras;
+
+        switch(requestCode) {
+            case 70:
+                if (resultCode == Activity.RESULT_OK) {
+                    Bitmap photo = (Bitmap) imageReturnedIntent.getExtras().get("data");
+                    ImageView imageviewMom = findViewById(R.id.imageView4);
+                    imageviewMom.setImageBitmap(photo);
+                    imageUriMom = getImageUri(getApplicationContext(), photo);
+                }
+                break;
+            case 71:
+                if(resultCode == RESULT_OK){
+                    imageUriMom = imageReturnedIntent.getData();
+                    Log.i("image_uri", String.valueOf(imageUriMom));
+                    try {
+                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriMom);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    ImageView imageviewMom = findViewById(R.id.imageView4);
+                    imageviewMom.setImageBitmap(bitmap);
+                }
+                break;
+            case 72:
+                if (resultCode == Activity.RESULT_OK) {
+                    Bitmap photo = (Bitmap) imageReturnedIntent.getExtras().get("data");
+                    ImageView imageviewDad = findViewById(R.id.imageView3);
+                    imageviewDad.setImageBitmap(photo);
+                    imageUriDad = getImageUri(getApplicationContext(), photo);
+                }
+                break;
+            case 73:
+                if(resultCode == RESULT_OK){
+                    imageUriDad = imageReturnedIntent.getData();
+                    Log.i("info", String.valueOf(imageUriDad));
+                    try {
+                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriDad);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    ImageView imageviewDad = findViewById(R.id.imageView3);
+                    imageviewDad.setImageBitmap(bitmap);
+                }
+                break;
+            case 74:
+                if (resultCode == Activity.RESULT_OK) {
+                    Bitmap photo = (Bitmap) imageReturnedIntent.getExtras().get("data");
+                    ImageView imageviewPolice = findViewById(R.id.imageView5);
+                    imageviewPolice.setImageBitmap(photo);
+                    imageUriPolice = getImageUri(getApplicationContext(), photo);
+                }
+                break;
+            case 75:
+                if(resultCode == RESULT_OK){
+                    imageUriPolice = imageReturnedIntent.getData();
+                    Log.i("info", String.valueOf(imageUriPolice));
+                    try {
+                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriPolice);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    ImageView imageviewPolice = findViewById(R.id.imageView5);
+                    imageviewPolice.setImageBitmap(bitmap);
+                }
+                break;
+        }
+    }
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
     }
 }
