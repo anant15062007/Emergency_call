@@ -426,7 +426,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             {
                 Toast.makeText(this, "Storage Permission Granted", Toast.LENGTH_LONG).show();
                 Log.i("tag", "I am choosing photo");
-                Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                Intent pickPhoto = new Intent(Intent.ACTION_OPEN_DOCUMENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 if (imageButtonClicked.equals("mom")) {
                     Log.i("inside if mom", "i am inside");
                     startActivityForResult(pickPhoto, 71);
@@ -507,7 +507,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                             requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_READ_EXTERNAL_STORAGE_PERMISSION_CODE);
                         } else {
                             Log.i("tag", "I am choosing photo");
-                            Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            Intent pickPhoto = new Intent(Intent.ACTION_OPEN_DOCUMENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                             if (imageButtonClicked.equals("mom")) {
                                 Log.i("inside if mom", "i am inside");
                                 startActivityForResult(pickPhoto, 71);
