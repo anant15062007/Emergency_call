@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private static final int CALL_PHONE_REQUEST = 51;
     private static final int MY_SMS_LOCATION_PERMISSION_CODE = 60;
     private static final int MY_CAMERA_PERMISSION_CODE = 80;
+    private static final int MY_READ_EXTERNAL_STORAGE_PERMISSION_CODE = 90;
     Button button3 = null;
     private GoogleMap mMap;
     private LocationManager locationManager;
@@ -128,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         if(imageMom != "") {
             try {
                 ImageView imageview = findViewById(R.id.imageView4);
+                Log.i("image_uri", String.valueOf(imageUriMom));
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriMom);
                 imageview.setImageBitmap(bitmap);
             } catch (FileNotFoundException e) {
@@ -250,6 +252,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             startActivity(intent);
         }
     }
+
 /*
     public void dad(View view) {
         SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
@@ -382,6 +385,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 Toast.makeText(this, "Phone Permission Denied", Toast.LENGTH_LONG).show();
             }
         }
+
         if (requestCode == MY_SMS_LOCATION_PERMISSION_CODE)
         {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED)
@@ -394,6 +398,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 Toast.makeText(this, "SMS Or Location Permission Denied", Toast.LENGTH_LONG).show();
             }
         }
+
         if (requestCode == MY_CAMERA_PERMISSION_CODE)
         {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
@@ -415,6 +420,29 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
         }
 
+        if (requestCode == MY_READ_EXTERNAL_STORAGE_PERMISSION_CODE)
+        {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                Toast.makeText(this, "Storage Permission Granted", Toast.LENGTH_LONG).show();
+                Log.i("tag", "I am choosing photo");
+                Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                if (imageButtonClicked.equals("mom")) {
+                    Log.i("inside if mom", "i am inside");
+                    startActivityForResult(pickPhoto, 71);
+                } else if (imageButtonClicked.equals("dad")) {
+                    Log.i("inside if dad", "i am inside");
+                    startActivityForResult(pickPhoto, 73);
+                } else if (imageButtonClicked.equals("police")) {
+                    Log.i("inside if police", "i am inside");
+                    startActivityForResult(pickPhoto, 75);
+                }
+            }
+            else
+            {
+                Toast.makeText(this, "Storage Permission Denied", Toast.LENGTH_LONG).show();
+            }
+        }
 
 
     }
@@ -458,13 +486,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             @RequiresApi(api = Build.VERSION_CODES.M)
             public void onClick(DialogInterface dialog, int which) {
                 Log.i("info","item clicked number="+which);
-                switch (which){
+                switch (which) {
                     case 0:
-                        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
-                        {
+                        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                             requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
-                        }
-                        else {
+                        } else {
                             Log.i("tag", "I am taking photo");
                             Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                             if (imageButtonClicked == "mom") {
@@ -477,26 +503,29 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                         }
                         break;
                     case 1:
-                        Log.i("tag","I am choosing photo");
-                        Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                        if (imageButtonClicked.equals("mom")) {
-                            Log.i("inside if mom","i am inside");
-                            startActivityForResult(pickPhoto, 71);
+                        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_READ_EXTERNAL_STORAGE_PERMISSION_CODE);
+                        } else {
+                            Log.i("tag", "I am choosing photo");
+                            Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            if (imageButtonClicked.equals("mom")) {
+                                Log.i("inside if mom", "i am inside");
+                                startActivityForResult(pickPhoto, 71);
+                            } else if (imageButtonClicked.equals("dad")) {
+                                Log.i("inside if dad", "i am inside");
+                                startActivityForResult(pickPhoto, 73);
+                            } else if (imageButtonClicked.equals("police")) {
+                                Log.i("inside if police", "i am inside");
+                                startActivityForResult(pickPhoto, 75);
+                            }
+                            break;
                         }
-                        else if (imageButtonClicked.equals("dad")){
-                            Log.i("inside if dad","i am inside");
-                            startActivityForResult(pickPhoto, 73);
-                        }
-                        else if (imageButtonClicked.equals("police")){
-                            Log.i("inside if police","i am inside");
-                            startActivityForResult(pickPhoto, 75);
-                        }
-                        break;
                 }
             }
         });
         builder.show();
     }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         Log.i("info","inside on activity result");
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
@@ -571,6 +600,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 break;
         }
     }
+
     public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
