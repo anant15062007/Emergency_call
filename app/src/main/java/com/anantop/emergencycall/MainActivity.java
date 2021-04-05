@@ -47,8 +47,10 @@ import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
-    private static final int MY_CALL_PHONE_PERMISSION_CODE = 50;
-    private static final int CALL_PHONE_REQUEST = 51;
+    private static final int MY_CALL_PHONE_MOM_PERMISSION_CODE = 51;
+    private static final int MY_CALL_PHONE_DAD_PERMISSION_CODE = 52;
+    private static final int MY_CALL_PHONE_POLICE_PERMISSION_CODE = 53;
+
     private static final int MY_SMS_LOCATION_PERMISSION_CODE = 60;
     private static final int MY_CAMERA_PERMISSION_CODE = 80;
     private static final int MY_READ_EXTERNAL_STORAGE_PERMISSION_CODE = 90;
@@ -104,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         setContentView(R.layout.settings_activity);
         // set the text1 value from database
         SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-
+Log.i("number",sharedPreferences.getString("numberMom", ""));
         EditText number1 = (EditText) findViewById(R.id.editTextTextPersonName2);
         number1.setText(sharedPreferences.getString("numberMom", ""));
         EditText number2 = (EditText) findViewById(R.id.editTextTextPersonName);
@@ -112,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         EditText number3 = (EditText) findViewById(R.id.editTextTextPersonName3);
         number3.setText(sharedPreferences.getString("numberPolice", ""));
 
-        String imageMom = sharedPreferences.getString("imageMom", "");
+        String imageMom = sharedPreferences.getString("imageMom1", "");
         String imageDad = sharedPreferences.getString("imageDad", "");
         String imagePolice = sharedPreferences.getString("imagePolice", "");
 
@@ -135,6 +137,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
+                e.printStackTrace();
+            }catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -168,19 +172,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("numberMom", number1.getText().toString());
-        editor.putString("imageMom",imageUriMom.toString());
+        editor.putString("imageMom1",imageUriMom.toString());
+        editor.putString("test","123");
         editor.commit();
 
         EditText number2 = (EditText) findViewById(R.id.editTextTextPersonName);
-        sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-        editor = sharedPreferences.edit();
         editor.putString("numberDad", number2.getText().toString());
         editor.putString("imageDad",imageUriDad.toString());
         editor.commit();
 
         EditText number3 = (EditText) findViewById(R.id.editTextTextPersonName3);
-        sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-        editor = sharedPreferences.edit();
         editor.putString("numberPolice", number3.getText().toString());
         editor.putString("imagePolice",imageUriPolice.toString());
         editor.commit();
@@ -224,15 +225,19 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void callPerson(View view) {
         Log.i("info", getId(view));
         String buttonClicked = null;
+        int MY_CALL_PHONE_PERMISSION_CODE = 0;
 
         if(getId(view).equals("com.anantop.emergencycall:id/back")){
             Log.i("click", "yyyyyyy"+getId(view));
             buttonClicked="numberMom";
+            MY_CALL_PHONE_PERMISSION_CODE = MY_CALL_PHONE_MOM_PERMISSION_CODE;
         } else if(getId(view).equals("com.anantop.emergencycall:id/buttonDad")){
             buttonClicked="numberDad";
+            MY_CALL_PHONE_PERMISSION_CODE = MY_CALL_PHONE_DAD_PERMISSION_CODE;
         }
         else if (getId(view).equals("com.anantop.emergencycall:id/buttonPolice")) {
             buttonClicked="numberPolice";
+            MY_CALL_PHONE_PERMISSION_CODE = MY_CALL_PHONE_POLICE_PERMISSION_CODE;
         }
         else{
             Log.i("click", "unknown button clicked");
@@ -252,32 +257,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             startActivity(intent);
         }
     }
-
-/*
-    public void dad(View view) {
-        SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-        String number2 = sharedPreferences.getString("numberDad", "");
-        Intent intent = new Intent(Intent.ACTION_CALL);
-        intent.setData(Uri.parse("tel:" + number2));
-        if (ActivityCompat.checkSelfPermission(this, permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            Log.i("info", "No permissions hence return from here");
-            return;
-        }
-        startActivity(intent);
-    }
-
-    public void police(View view) {
-        SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-        String number3 = sharedPreferences.getString("numberPolice", "");
-        Intent intent = new Intent(Intent.ACTION_CALL);
-        intent.setData(Uri.parse("tel:" + number3));
-        if (ActivityCompat.checkSelfPermission(this, permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            Log.i("info", "No permissions hence return from here");
-            return;
-        }
-        startActivity(intent);
-    }
-*/
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void longClickAction(String person) {
@@ -369,13 +348,31 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
         //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == MY_CALL_PHONE_PERMISSION_CODE)
+        if ((requestCode == MY_CALL_PHONE_MOM_PERMISSION_CODE)||
+                (requestCode == MY_CALL_PHONE_DAD_PERMISSION_CODE)||
+                (requestCode == MY_CALL_PHONE_POLICE_PERMISSION_CODE))
         {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
             {
+                String buttonClicked = null;
+                if(requestCode == MY_CALL_PHONE_MOM_PERMISSION_CODE){
+                    Log.i("click", "Call Mom Clicked");
+                    buttonClicked="numberMom";
+                } else if(requestCode == MY_CALL_PHONE_DAD_PERMISSION_CODE){
+                    Log.i("click", "Call Dad Clicked");
+                    buttonClicked="numberDad";
+                }
+                else if (requestCode == MY_CALL_PHONE_POLICE_PERMISSION_CODE) {
+                    Log.i("click", "Call Police Clicked");
+                    buttonClicked="numberPolice";
+                }
+                else{
+                    Log.i("click", "unknown button clicked");
+                }
+
                 Toast.makeText(this, "Phone Permission Granted", Toast.LENGTH_LONG).show();
                 SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-                String number = sharedPreferences.getString("numberMom", "");
+                String number = sharedPreferences.getString(buttonClicked, "");
                 Intent intent = new Intent(Intent.ACTION_CALL);
                 intent.setData(Uri.parse("tel:" + number));
                 startActivity(intent);
