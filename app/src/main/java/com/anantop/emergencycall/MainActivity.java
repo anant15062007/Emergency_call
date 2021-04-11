@@ -1,11 +1,8 @@
 package com.anantop.emergencycall;
 
 import android.Manifest;
-import android.Manifest.permission;
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.PendingIntent;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -32,17 +29,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.BreakIterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -55,12 +44,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private static final int MY_CAMERA_PERMISSION_CODE = 80;
     private static final int MY_READ_EXTERNAL_STORAGE_PERMISSION_CODE = 90;
     Button button3 = null;
-    private GoogleMap mMap;
     private LocationManager locationManager;
-    private LocationListener locationListener;
-    private final long MIN_TIME = 1000;
-    private final long MIN_DIST = 5;
-    private LatLng latLng;
     String ph_no;
     Uri imageUriMom;
     Uri imageUriDad;
@@ -104,9 +88,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     public void settingsPage(View view) {
         setContentView(R.layout.settings_activity);
+        ///////////////////////////
+        /*SharedPreferences sharedPreferences1 = getSharedPreferences("fileNameString", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences1.edit();
+        editor.putString("imageMom1","");
+        editor.putString("imageDad","");
+        editor.commit();
+        ///////////////////////*/
         // set the text1 value from database
         SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-Log.i("number",sharedPreferences.getString("numberMom", ""));
+        Log.i("number",sharedPreferences.getString("numberMom", ""));
         EditText number1 = (EditText) findViewById(R.id.editTextTextPersonName2);
         number1.setText(sharedPreferences.getString("numberMom", ""));
         EditText number2 = (EditText) findViewById(R.id.editTextTextPersonName);
