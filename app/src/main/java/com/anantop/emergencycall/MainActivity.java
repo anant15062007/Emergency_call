@@ -89,12 +89,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void settingsPage(View view) {
         setContentView(R.layout.settings_activity);
         ///////////////////////////
-        /*SharedPreferences sharedPreferences1 = getSharedPreferences("fileNameString", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences1.edit();
-        editor.putString("imageMom1","");
-        editor.putString("imageDad","");
-        editor.commit();
-        ///////////////////////*/
         // set the text1 value from database
         SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
         Log.i("number",sharedPreferences.getString("numberMom", ""));
@@ -104,6 +98,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         number2.setText(sharedPreferences.getString("numberDad", ""));
         EditText number3 = (EditText) findViewById(R.id.editTextTextPersonName3);
         number3.setText(sharedPreferences.getString("numberPolice", ""));
+        EditText name1 = (EditText) findViewById(R.id.editTextTextPersonName4);
+        name1.setText(sharedPreferences.getString("name1", ""));
+        EditText name2 = (EditText) findViewById(R.id.editTextTextPersonName5);
+        name2.setText(sharedPreferences.getString("name2", ""));
+        EditText name3 = (EditText) findViewById(R.id.editTextTextPersonName6);
+        name3.setText(sharedPreferences.getString("name3", ""));
 
         String imageMom = sharedPreferences.getString("imageMom1", "");
         String imageDad = sharedPreferences.getString("imageDad", "");
@@ -164,7 +164,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("numberMom", number1.getText().toString());
         editor.putString("imageMom1",imageUriMom.toString());
-        editor.putString("test","123");
         editor.commit();
 
         EditText number2 = (EditText) findViewById(R.id.editTextTextPersonName);
@@ -176,6 +175,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         editor.putString("numberPolice", number3.getText().toString());
         editor.putString("imagePolice",imageUriPolice.toString());
         editor.commit();
+
+        EditText name1 = (EditText) findViewById(R.id.editTextTextPersonName4);
+        editor.putString("name1", name1.getText().toString());
+        editor.commit();
+
+        EditText name2 = (EditText) findViewById(R.id.editTextTextPersonName5);
+        editor.putString("name2", name2.getText().toString());
+        editor.commit();
+
+        EditText name3 = (EditText) findViewById(R.id.editTextTextPersonName6);
+        editor.putString("name3", name3.getText().toString());
+        editor.commit();
+
+        Log.i("name1",sharedPreferences.getString("name1", ""));
+        Log.i("name2",sharedPreferences.getString("name2", ""));
+        Log.i("name3",sharedPreferences.getString("name3", ""));
     }
 
     public void mainPage(View view) {
@@ -308,8 +323,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         sms.sendTextMessage(ph_no, null,
                 "Need Help. Current Location: " +
                         location.getLatitude() + ", " + location.getLongitude() + "Address=" + address, pi, null);
-        Toast.makeText(getApplicationContext(), "Message Sent successfully!",
-                Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Message Sent successfully!", Toast.LENGTH_LONG).show();
     }
 
     @Override
