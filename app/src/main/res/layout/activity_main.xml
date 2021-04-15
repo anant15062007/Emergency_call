@@ -13,7 +13,7 @@
         android:layout_height="96dp"
         android:layout_marginTop="104dp"
         android:onClick="callPerson"
-        android:text="Call Mom"
+        android:text="Person 1"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -26,7 +26,7 @@
         android:layout_height="96dp"
         android:layout_marginTop="104dp"
         android:onClick="callPerson"
-        android:text="Call Dad"
+        android:text="Person 2"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
@@ -39,7 +39,7 @@
         android:layout_height="96dp"
         android:layout_marginTop="104dp"
         android:onClick="callPerson"
-        android:text="Call Police"
+        android:text="Person 3"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -55,5 +55,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/transparent_settings" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="300dp"
+        android:layout_height="33dp"
+        android:text="Click any button to call or long press to send location in sms"
+        app:layout_constraintBottom_toTopOf="@+id/back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.366" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

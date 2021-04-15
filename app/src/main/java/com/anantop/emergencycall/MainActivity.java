@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         setContentView(R.layout.activity_main);
 
         button3 = (Button) findViewById(R.id.back);
+        setButtonText(button3,"name1","numberMom");
         button3.setOnLongClickListener(new View.OnLongClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
         });
         button3 = (Button) findViewById(R.id.buttonDad);
+        setButtonText(button3,"name2","numberDad");
         button3.setOnLongClickListener(new View.OnLongClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
@@ -76,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
         });
         button3 = (Button) findViewById(R.id.buttonPolice);
+        setButtonText(button3,"name3","numberPolice");
         button3.setOnLongClickListener(new View.OnLongClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
@@ -197,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         setContentView(R.layout.activity_main);
 
         Button button1 = (Button) findViewById(R.id.back);
+        setButtonText(button1,"name1","numberMom");
         button1.setOnLongClickListener(new View.OnLongClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
@@ -207,6 +211,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         });
 
         Button button2 = (Button) findViewById(R.id.buttonDad);
+        setButtonText(button2,"name2","numberDad");
         button2.setOnLongClickListener(new View.OnLongClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
@@ -217,6 +222,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         });
 
         Button button3 = (Button) findViewById(R.id.buttonPolice);
+        setButtonText(button3,"name3","numberPolice");
         button3.setOnLongClickListener(new View.OnLongClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
@@ -608,5 +614,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
+    }
+
+    public void setButtonText(Button button, String name, String number){
+        SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
+        String nameValue = null;
+        nameValue = sharedPreferences.getString(name, "Not Set 1");
+        String numberValue = null;
+        numberValue = sharedPreferences.getString(number, "Not Set 1");
+        if((nameValue != null && nameValue.length() != 0) && (numberValue != null && numberValue.length() != 0)) {
+            Log.i("inside","inside if:"+nameValue);
+            button.setText(nameValue);
+        }else{
+            Log.i("inside","inside else:"+nameValue);
+            button.setText("Not Set");
+            button.setEnabled(false);
+        }
     }
 }
