@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
@@ -17,6 +18,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.telephony.SmsManager;
 import android.util.Log;
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private static final int MY_CALL_PHONE_MOM_PERMISSION_CODE = 51;
     private static final int MY_CALL_PHONE_DAD_PERMISSION_CODE = 52;
     private static final int MY_CALL_PHONE_POLICE_PERMISSION_CODE = 53;
+    private static final int MY_READ_CONTACTS_PERMISSION_CODE = 100;
 
     private static final int MY_SMS_LOCATION_PERMISSION_CODE = 60;
     private static final int MY_CAMERA_PERMISSION_CODE = 80;
@@ -49,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     Uri imageUriMom;
     Uri imageUriDad;
     Uri imageUriPolice;
-    String imageButtonClicked=null;
+    String imageButtonClicked = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     public void settingsPage(View view) {
         setContentView(R.layout.settings_activity);
-        ///////////////////////////
         // set the text1 value from database
         SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
         Log.i("number",sharedPreferences.getString("numberMom", ""));
@@ -452,6 +454,33 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
         }
 
+        if (requestCode == MY_READ_CONTACTS_PERMISSION_CODE)
+        {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                Toast.makeText(this, "Contacts Permission Granted", Toast.LENGTH_LONG).show();
+                Log.i("tag", "I am choosing contact");
+                //Intent pickPhoto = new Intent(Intent.ACTION_OPEN_DOCUMENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+                //startActivityForResult(intent, 7);
+
+                if (imageButtonClicked.equals("con1")) {
+                    Log.i("inside if con1", "i am inside");
+                    startActivityForResult(intent, 101);
+                } else if (imageButtonClicked.equals("con2")) {
+                    Log.i("inside if con2", "i am inside");
+                    startActivityForResult(intent, 102);
+                } else if (imageButtonClicked.equals("con3")) {
+                    Log.i("inside if con3", "i am inside");
+                    startActivityForResult(intent, 103);
+                }
+            }
+            else
+            {
+                Toast.makeText(this, "Contact Permission Denied", Toast.LENGTH_LONG).show();
+            }
+        }
+
 
     }
 
@@ -606,6 +635,102 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     imageviewPolice.setImageBitmap(bitmap);
                 }
                 break;
+            case 101:
+                if (resultCode == Activity.RESULT_OK) {
+                    Uri uri;
+                    Cursor cursor1, cursor2;
+                    String TempNameHolder, TempNumberHolder, TempContactID, IDresult = "" ;
+                    int IDresultHolder ;
+                    uri = imageReturnedIntent.getData();
+                    cursor1 = getContentResolver().query(uri, null, null, null, null);
+
+                    if (cursor1.moveToFirst()) {
+                        TempNameHolder = cursor1.getString(cursor1.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                        TempContactID = cursor1.getString(cursor1.getColumnIndex(ContactsContract.Contacts._ID));
+                        IDresult = cursor1.getString(cursor1.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+                        IDresultHolder = Integer.valueOf(IDresult) ;
+
+                        if (IDresultHolder == 1) {
+                            cursor2 = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                                    null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID +
+                                            " = " + TempContactID, null, null);
+                            while (cursor2.moveToNext()) {
+                                TempNumberHolder = cursor2.getString(cursor2.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                                EditText name = (EditText) findViewById(R.id.editTextTextPersonName4);
+                                EditText number = (EditText) findViewById(R.id.editTextTextPersonName2);
+                                name.setText(TempNameHolder);
+                                number.setText(TempNumberHolder);
+
+                            }
+                        }
+
+                    }
+                }
+                break;
+            case 102:
+                if (resultCode == Activity.RESULT_OK) {
+                    Uri uri;
+                    Cursor cursor1, cursor2;
+                    String TempNameHolder, TempNumberHolder, TempContactID, IDresult = "" ;
+                    int IDresultHolder ;
+                    uri = imageReturnedIntent.getData();
+                    cursor1 = getContentResolver().query(uri, null, null, null, null);
+
+                    if (cursor1.moveToFirst()) {
+                        TempNameHolder = cursor1.getString(cursor1.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                        TempContactID = cursor1.getString(cursor1.getColumnIndex(ContactsContract.Contacts._ID));
+                        IDresult = cursor1.getString(cursor1.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+                        IDresultHolder = Integer.valueOf(IDresult) ;
+
+                        if (IDresultHolder == 1) {
+                            cursor2 = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                                    null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID +
+                                            " = " + TempContactID, null, null);
+                            while (cursor2.moveToNext()) {
+                                TempNumberHolder = cursor2.getString(cursor2.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                                EditText name = (EditText) findViewById(R.id.editTextTextPersonName5);
+                                EditText number = (EditText) findViewById(R.id.editTextTextPersonName);
+                                name.setText(TempNameHolder);
+                                number.setText(TempNumberHolder);
+
+                            }
+                        }
+
+                    }
+                }
+                break;
+            case 103:
+                if (resultCode == Activity.RESULT_OK) {
+                    Uri uri;
+                    Cursor cursor1, cursor2;
+                    String TempNameHolder, TempNumberHolder, TempContactID, IDresult = "" ;
+                    int IDresultHolder ;
+                    uri = imageReturnedIntent.getData();
+                    cursor1 = getContentResolver().query(uri, null, null, null, null);
+
+                    if (cursor1.moveToFirst()) {
+                        TempNameHolder = cursor1.getString(cursor1.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                        TempContactID = cursor1.getString(cursor1.getColumnIndex(ContactsContract.Contacts._ID));
+                        IDresult = cursor1.getString(cursor1.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+                        IDresultHolder = Integer.valueOf(IDresult) ;
+
+                        if (IDresultHolder == 1) {
+                            cursor2 = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                                    null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID +
+                                            " = " + TempContactID, null, null);
+                            while (cursor2.moveToNext()) {
+                                TempNumberHolder = cursor2.getString(cursor2.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                                EditText name = (EditText) findViewById(R.id.editTextTextPersonName6);
+                                EditText number = (EditText) findViewById(R.id.editTextTextPersonName3);
+                                name.setText(TempNameHolder);
+                                number.setText(TempNumberHolder);
+
+                            }
+                        }
+
+                    }
+                }
+                break;
         }
     }
 
@@ -630,5 +755,47 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             button.setText("Not Set");
             button.setEnabled(false);
         }
+    }
+
+    public void pickFromContacts(View view){
+        Log.i("inside", "inside pickFromContacts");
+
+        if(getId(view).equals("com.anantop.emergencycall:id/imageView6")){
+            Log.i("click", "yyyyyyy"+getId(view));
+            imageButtonClicked="con1";
+        } else if(getId(view).equals("com.anantop.emergencycall:id/imageView7")){
+            imageButtonClicked="con2";
+        }
+        else if (getId(view).equals("com.anantop.emergencycall:id/imageView8")) {
+            imageButtonClicked="con3";
+        }
+        else{
+            Log.i("click", "unknown button clicked");
+        }
+
+        if (checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
+        {
+            Log.i("info", "No permissions hence return from here");
+            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, MY_READ_CONTACTS_PERMISSION_CODE);
+        }
+        else
+        {
+            Log.i("tag", "I am choosing contact");
+            //Intent pickPhoto = new Intent(Intent.ACTION_OPEN_DOCUMENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+            //startActivityForResult(intent, 7);
+
+            if (imageButtonClicked.equals("con1")) {
+                Log.i("inside if con1", "i am inside");
+                startActivityForResult(intent, 101);
+            } else if (imageButtonClicked.equals("con2")) {
+                Log.i("inside if con2", "i am inside");
+                startActivityForResult(intent, 102);
+            } else if (imageButtonClicked.equals("con3")) {
+                Log.i("inside if con3", "i am inside");
+                startActivityForResult(intent, 103);
+            }
+        }
+
     }
 }
