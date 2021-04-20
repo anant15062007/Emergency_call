@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     public void settingsPage(View view) {
         setContentView(R.layout.settings_activity);
-        // set the text1 value from database
+
         SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
         Log.i("number",sharedPreferences.getString("numberMom", ""));
         EditText number1 = (EditText) findViewById(R.id.editTextTextPersonName2);
