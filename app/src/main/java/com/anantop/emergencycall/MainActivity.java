@@ -744,9 +744,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void setButtonText(Button button, String name, String number){
         SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
         String nameValue = null;
-        nameValue = sharedPreferences.getString(name, "Not Set 1");
+        nameValue = sharedPreferences.getString(name, "Not Set");
         String numberValue = null;
-        numberValue = sharedPreferences.getString(number, "Not Set 1");
+        numberValue = sharedPreferences.getString(number, "Not Set");
         if((nameValue != null && nameValue.length() != 0) && (numberValue != null && numberValue.length() != 0)) {
             Log.i("inside","inside if:"+nameValue);
             button.setText(nameValue);
