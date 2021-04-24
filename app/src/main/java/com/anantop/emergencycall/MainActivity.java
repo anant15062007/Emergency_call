@@ -42,10 +42,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private static final int MY_CALL_PHONE_DAD_PERMISSION_CODE = 52;
     private static final int MY_CALL_PHONE_POLICE_PERMISSION_CODE = 53;
     private static final int MY_READ_CONTACTS_PERMISSION_CODE = 100;
-
+    private static final int MY_ACTION_OPEN_DOCUMENT_PERMISSION_CODE = 110;
     private static final int MY_SMS_LOCATION_PERMISSION_CODE = 60;
     private static final int MY_CAMERA_PERMISSION_CODE = 80;
     private static final int MY_READ_EXTERNAL_STORAGE_PERMISSION_CODE = 90;
+
     Button button3 = null;
     private LocationManager locationManager;
     String ph_no;
@@ -95,6 +96,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void settingsPage(View view) {
         setContentView(R.layout.settings_activity);
 
+        /*if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+        {
+            Log.i("info", "No permissions for READ_EXTERNAL_STORAGE hence return from here");
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_ACTION_OPEN_DOCUMENT_PERMISSION_CODE);
+        }
+        else
+        {
+            Log.i("tag", "Permissions for READ_EXTERNAL_STORAGE is already there");
+        }*/
+
         SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
         Log.i("number",sharedPreferences.getString("numberMom", ""));
         EditText number1 = (EditText) findViewById(R.id.editTextTextPersonName2);
@@ -127,7 +138,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         if(imageMom != "") {
             try {
                 ImageView imageview = findViewById(R.id.imageView4);
-                Log.i("image_uri", String.valueOf(imageUriMom));
+                Log.i("image str frm pref", imageMom);
+                Log.i("image uri-parsed-String", String.valueOf(imageUriMom));
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUriMom);
                 imageview.setImageBitmap(bitmap);
             } catch (FileNotFoundException e) {
@@ -360,7 +372,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
-        //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if ((requestCode == MY_CALL_PHONE_MOM_PERMISSION_CODE)||
                 (requestCode == MY_CALL_PHONE_DAD_PERMISSION_CODE)||
                 (requestCode == MY_CALL_PHONE_POLICE_PERMISSION_CODE))
@@ -437,6 +448,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 Toast.makeText(this, "Storage Permission Granted", Toast.LENGTH_LONG).show();
                 Log.i("tag", "I am choosing photo");
                 Intent pickPhoto = new Intent(Intent.ACTION_OPEN_DOCUMENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                // pickPhoto.addCategory(Intent.CATEGORY_OPENABLE);
+                // pickPhoto.setType("*/*.jpg");
+
                 if (imageButtonClicked.equals("mom")) {
                     Log.i("inside if mom", "i am inside");
                     startActivityForResult(pickPhoto, 71);
@@ -481,17 +495,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
         }
 
-
-    }
-
-    public static  Bitmap cropAndScale (Bitmap source, int scale){
-        int factor = source.getHeight() <= source.getWidth() ? source.getHeight(): source.getWidth();
-        int longer = source.getHeight() >= source.getWidth() ? source.getHeight(): source.getWidth();
-        int x = source.getHeight() >= source.getWidth() ?0:(longer-factor)/2;
-        int y = source.getHeight() <= source.getWidth() ?0:(longer-factor)/2;
-        source = Bitmap.createBitmap(source, x, y, factor, factor);
-        source = Bitmap.createScaledBitmap(source, scale, scale, false);
-        return source;
+/*        if (requestCode == MY_ACTION_OPEN_DOCUMENT_PERMISSION_CODE)
+        {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                Toast.makeText(this, "Storage Permission Granted", Toast.LENGTH_LONG).show();
+                Log.i("tag", "Open Doc Permission Granted");
+            }
+            else
+            {
+                Toast.makeText(this, "Storage Permission Denied", Toast.LENGTH_LONG).show();
+            }
+        }*/
     }
 
     public static String getId(View view) {
@@ -545,6 +560,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                         } else {
                             Log.i("tag", "I am choosing photo");
                             Intent pickPhoto = new Intent(Intent.ACTION_OPEN_DOCUMENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            // pickPhoto.addCategory(Intent.CATEGORY_OPENABLE);
+                            // pickPhoto.setType("*/*.jpg");
                             if (imageButtonClicked.equals("mom")) {
                                 Log.i("inside if mom", "i am inside");
                                 startActivityForResult(pickPhoto, 71);
