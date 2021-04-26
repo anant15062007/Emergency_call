@@ -107,23 +107,23 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }*/
 
         SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-        Log.i("number",sharedPreferences.getString("numberMom", ""));
+        Log.i("number",sharedPreferences.getString("numberMom", "Not Set"));
         EditText number1 = (EditText) findViewById(R.id.editTextTextPersonName2);
-        number1.setText(sharedPreferences.getString("numberMom", ""));
+        number1.setText(sharedPreferences.getString("numberMom", "Not Set"));
         EditText number2 = (EditText) findViewById(R.id.editTextTextPersonName);
-        number2.setText(sharedPreferences.getString("numberDad", ""));
+        number2.setText(sharedPreferences.getString("numberDad", "Not Set"));
         EditText number3 = (EditText) findViewById(R.id.editTextTextPersonName3);
-        number3.setText(sharedPreferences.getString("numberPolice", ""));
+        number3.setText(sharedPreferences.getString("numberPolice", "Not Set"));
         EditText name1 = (EditText) findViewById(R.id.editTextTextPersonName4);
-        name1.setText(sharedPreferences.getString("name1", ""));
+        name1.setText(sharedPreferences.getString("name1", "Not Set"));
         EditText name2 = (EditText) findViewById(R.id.editTextTextPersonName5);
-        name2.setText(sharedPreferences.getString("name2", ""));
+        name2.setText(sharedPreferences.getString("name2", "Not Set"));
         EditText name3 = (EditText) findViewById(R.id.editTextTextPersonName6);
-        name3.setText(sharedPreferences.getString("name3", ""));
+        name3.setText(sharedPreferences.getString("name3", "Not Set"));
 
-        String imageMom = sharedPreferences.getString("imageMom1", "");
-        String imageDad = sharedPreferences.getString("imageDad", "");
-        String imagePolice = sharedPreferences.getString("imagePolice", "");
+        String imageMom = sharedPreferences.getString("imageMom1", "Not Set");
+        String imageDad = sharedPreferences.getString("imageDad", "Not Set");
+        String imagePolice = sharedPreferences.getString("imagePolice", "Not Set");
 
         try {
             imageUriMom = Uri.parse(imageMom);
@@ -205,9 +205,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         editor.putString("name3", name3.getText().toString());
         editor.commit();
 
-        Log.i("name1",sharedPreferences.getString("name1", ""));
-        Log.i("name2",sharedPreferences.getString("name2", ""));
-        Log.i("name3",sharedPreferences.getString("name3", ""));
+        Log.i("name1",sharedPreferences.getString("name1", "Not Set"));
+        Log.i("name2",sharedPreferences.getString("name2", "Not Set"));
+        Log.i("name3",sharedPreferences.getString("name3", "Not Set"));
     }
 
     public void mainPage(View view) {
@@ -277,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         else
         {
             SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-            String number = sharedPreferences.getString(buttonClicked, "");
+            String number = sharedPreferences.getString(buttonClicked, "Not Set");
             Intent intent = new Intent(Intent.ACTION_CALL);
             intent.setData(Uri.parse("tel:" + number));
             startActivity(intent);
@@ -287,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void longClickAction(String person) {
         SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-        ph_no = sharedPreferences.getString(person, "");
+        ph_no = sharedPreferences.getString(person, "Not Set");
         Log.i("info", "inside longClickAction");
         Log.i("info", "phone number"+ph_no);
 
@@ -396,7 +396,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
                 Toast.makeText(this, "Phone Permission Granted", Toast.LENGTH_LONG).show();
                 SharedPreferences sharedPreferences = getSharedPreferences("fileNameString", MODE_PRIVATE);
-                String number = sharedPreferences.getString(buttonClicked, "");
+                String number = sharedPreferences.getString(buttonClicked, "Not Set");
                 Intent intent = new Intent(Intent.ACTION_CALL);
                 intent.setData(Uri.parse("tel:" + number));
                 startActivity(intent);
@@ -438,6 +438,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             else
             {
                 Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_LONG).show();
+
             }
         }
 
